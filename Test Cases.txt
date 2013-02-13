@@ -1,7 +1,10 @@
+// Pseudocode to bridge code and rationale
+// add any you can come up with while exploring the problem domain
+
 1. Safety Requirement I
 assert( !( DoorState = Closed and PeopleState = Entering ) )
 
-2. Liveness Requirement
+2. Liveness Requirement I
 if ( TrackState = Stopping and DoorState = Closed and TrainDirection = Coming )
 	assert( now - StopTime <= 2 seconds )
 	
@@ -9,4 +12,3 @@ if ( TrackState = Stopping and DoorState = Closed and TrainDirection = Coming )
 if ( TrackState = Empty )
 	assert( now - CloseTime >= 2 seconds )
 
-		
