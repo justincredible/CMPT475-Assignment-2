@@ -1,8 +1,12 @@
-1. Safety Requirement
+1. Safety Requirement I
 assert( !( DoorState = Closed and PeopleState = Entering ) )
 
 2. Liveness Requirement
 if ( TrackState = Stopping and DoorState = Closed and TrainDirection = Coming )
 	assert( now - StopTime <= 2 seconds )
+	
+3. Safety Requirement II
+if ( TrackState = Empty )
+	assert( now - CloseTime >= 2 seconds )
 
 		
