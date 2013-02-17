@@ -1,0 +1,133 @@
+/* CoreASM specification */
+
+CoreASM CoquitlamStation
+
+use StandardPlugins
+use TimePlugin
+use MathPlugin
+
+enum Track = {track1, track2}
+enum TrackStatus = {empty, coming, stopped}
+enum Train = {inbound, outbound}
+enum Door = {open, close}
+enum DoorState = {opened, closed}
+enum PeopleState = {entering, waiting}
+
+/**/  
+function leaveTime : Track -> TIME
+function trackStatus : Track -> TrackStatus 
+function train : Track -> Train
+function door : Track -> Door
+function doorState : Track -> DoorState
+function peopleState : Track -> PeopleState
+/**/
+
+universe Agents = {trackController, doorController, observer, environment}
+
+init InitRule
+
+rule InitRule = par
+	stopTime := 5000
+	waitTime := 10000
+	resetTime := 4000
+	departTime := 2000 
+	startTime := now
+	forall t in Track do 
+		par
+			trackStatus(t) := empty
+			door(t) := close
+			doorState(t) := closed
+			peopleState(t) := waiting
+			leaveTime(t) := infinity
+		endpar
+	program(trackController) := @TrackControl
+	program(doorController) := @DoorControl
+	program(observer) := @ObserverProgram
+	program(environment) := @EnvironmentProgram
+	program(self) := undef
+endpar
+
+rule TrackControl = 
+	par 
+		forall t in Track do par
+			if trackStatus(t) = stopped then par
+				SignalOpen(t)
+				SignalClose(t)
+				if train(t) = outbound and doorState(t) = closed and leaveTime(t) < now then par
+					trackStatus(t) := empty
+					leaveTime(t) := infinity
+				endpar
+			endpar
+			if trackStatus(t) = coming then
+				if stoppingTime(t) < now then
+					trackStatus(t) := stopped
+		endpar
+	endpar
+
+
+rule DoorControl =  
+	par
+		forall t in Track do
+		par
+			if door(t) = open and doorState(t) = closed then par
+				doorState(t) := opened
+				leaveTime(t) := now + waitTime
+			endpar
+			if door(t) = close and doorState(t) = opened then par
+				train(t) := outbound
+				if peopleState(t) = waiting then par
+					doorState(t) := closed
+					leaveTime(t) := now + departTime
+				endpar
+				else par
+					door(t) := open
+					leaveTime(t) := now + resetTime
+				endpar
+			endpar
+		endpar
+	endpar
+
+
+rule SignalOpen(x) =
+	if train(x) = inbound and doorState(x) = closed then
+		door(x) := open
+
+
+rule SignalClose(x) =
+	if leaveTime(x) < now and doorState(x) = opened then
+		door(x) := close
+
+
+// The observer
+rule ObserverProgram =
+	seqblock
+		print "Time: " + ((now - startTime) / 1000) + " seconds"
+		forall t in Track do
+			if trackStatus(t) = stopped then
+				print "Track " + t + " is " + trackStatus(t) + " (" + doorState(t) + ")"
+			else
+				print "Track " + t + " is " + trackStatus(t)
+		print ""
+	endseqblock
+
+
+// The environment
+rule EnvironmentProgram = 
+	choose t in Track do
+		par
+			if trackStatus(t) = empty then 
+				if random < 0.15 then par
+					train(t) := inbound
+					trackStatus(t) := coming
+					stoppingTime(t) := now + stopTime 
+				endpar
+			if trackStatus(t) = stopped then par
+				if doorState(t) = opened then par
+					if door(t) = open then
+						peopleState(t) := entering
+					if door(t) = close then
+						if random < 0.85 then
+							peopleState(t) := waiting
+				endpar
+			endpar
+		endpar
