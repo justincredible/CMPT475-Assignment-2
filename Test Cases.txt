@@ -3,6 +3,7 @@
 
 1. Safety Requirement I
 assert( !( DoorState = Closed and PeopleState = Entering ) )
+assert( TrackState != Stopped and DoorState = Closed )
 
 2. Liveness Requirement I
 if ( TrackState = Stopping and DoorState = Closed and TrainDirection = Coming )
