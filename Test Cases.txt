@@ -3,7 +3,7 @@
 
 1. Safety Requirement I
 assert( !( DoorState = Closed and PeopleState = Entering ) )
-assert( TrackState != Stopped and DoorState = Closed )
+assert( TrackState != Stopped and DoorState = Closed ) 
 
 2. Liveness Requirement I
 if ( TrackState = Stopping and DoorState = Closed and TrainDirection = Coming )
@@ -12,4 +12,16 @@ if ( TrackState = Stopping and DoorState = Closed and TrainDirection = Coming )
 3. Safety Requirement II
 if ( TrackState = Empty )
 	assert( now - CloseTime >= 2 seconds )
+
+
+There are couple unsafety cases I can think we should test， I categorize them so it is easy to check:
+1. Unsafety Cases
+a. TrackStatue & DoorSoorState
+( TrackState != Stopped and DoorState = Opened )
+
+b.TrackStatue & PeopleState 
+( TrackState != Stopped and PeopleState = Entering )
+
+c. DoorSoorState & PeopleState 
+( DoorState = Closed and PeopleState = Entering )
 
