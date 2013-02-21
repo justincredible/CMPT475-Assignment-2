@@ -1,8 +1,8 @@
 /*
-Yi (Andy) Li 			301146455
-Robert Mackenzie 		200128755
-Justin Symonds 			301031838
-Si Yuan (Oscar) Zhang 	301127012
+Yi (Andy) Li			301146455
+Robert Mackenzie		200128755
+Justin Symonds			301031838
+Si Yuan (Oscar) Zhang	301127012
 */
 
 CoreASM CoquitlamStation
@@ -59,10 +59,8 @@ rule TrackControl =
 			if trackStatus(t) = stopped then par
 				SignalOpen(t)
 				SignalClose(t)
-				if direction(t) = outbound and doorState(t) = closed and leaveTime(t) < now then par
+				if direction(t) = outbound and doorState(t) = closed and leaveTime(t) < now then
 					trackStatus(t) := empty
-					leaveTime(t) := infinity
-				endpar
 			endpar
 			if trackStatus(t) = coming then
 				if stoppingTime(t) < now then
